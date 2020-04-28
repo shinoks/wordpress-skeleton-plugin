@@ -18,6 +18,6 @@ if ( !class_exists( 'woocomerceCategoryAccordion' ) ) {
     function register_shinoks_woocomerce_cat_accorcdion_widget() { 
         register_widget( 'woocomerceCategoryAccordion' ); 
     }
-    
+
     wp_enqueue_style( 'shinoks_wc_cat_accordion_style',  plugin_dir_url( __FILE__ ) . 'css/shinoks_wc_cat_accordion_style.css' );
 }

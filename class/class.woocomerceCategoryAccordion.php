@@ -11,36 +11,46 @@ class woocomerceCategoryAccordion extends WP_Widget{
         if($instance['show_title']=='on'){
             if(!empty($instance['title'])){
                 echo "<h3 class='skleton-title'>";
-                echo $instance['title'];
+                    echo $instance['title'];
                 echo "</h3>";
             }
         }
         echo '<div class="text-field">';
-        echo $instance['text'];
+            echo $instance['text'];
         echo '</div>';
-        $categories = $this->get_woocommerce_categories($instance['show_empty']);
-        $url = '';
-        $submenuhtml = '';
+        $categories = $this->get_woocommerce_categories($instance['show_empty']=='on'?false:true);
         echo '<nav>';
         echo '<ul class="shinoks_wc_accordion">';
         foreach($categories as $category){
             if($category->parent===0){
                 $url = get_term_link( (int)$category->term_id, $category->taxonomy );
-                echo '<li class="shinoks_wc_accordion_li" id="category-'.$category->term_id.'"><a href="'.$url.'">' .$category->name . '</a><span class="shinoks_wc_accordion_counter">' .$category->count. '</span> ';
-
+                echo '<li class="shinoks_wc_accordion_li" id="category-'.$category->term_id.'"><a href="'.$url.'">' .$category->name . '</a>';
+                if($instance['show_counter']=='on'){
+                    echo '<span class="shinoks_wc_accordion_counter">' .$category->count. '</span> ';
+                }
                 if($instance['show_sub_cat']=='on'){
                     $subcat = 0;
-                    $submenuhtml = '<ul id="subcatgory-'.$category->term_id.'" class="shinoks_wc_accordion_sub shinoks_wc_accordion_hide" >';
+                    $submenuhtml = '<ul id="subcatgory-'.$category->term_id.'" class="shinoks_wc_accordion_sub ';
+                    if($instance['show_hide_icon']=='on'){
+                        $submenuhtml .= 'shinoks_wc_accordion_hide';
+                    }
+                    $submenuhtml .= '">';
                     foreach($categories as $submenu){
                         if($submenu->parent==$category->term_id){
                             $url = get_term_link( (int)$submenu->term_id, $submenu->taxonomy );
-                            $submenuhtml .=  '<li class="shinoks_wc_accordion_li_sub"><a href="'.$url.'">'.$submenu->name.'</a> <span class="shinoks_wc_accordion_counter">' .$submenu->count. '</span> </li>';
+                            $submenuhtml .=  '<li class="shinoks_wc_accordion_li_sub"><a href="'.$url.'">'.$submenu->name.'</a> ';
+                            if($instance['show_counter']=='on') {
+                                echo '<span class="shinoks_wc_accordion_counter">' . $submenu->count . '</span>';
+                            }
+                            echo '</li>';
                             $subcat++;
                         }
                     }
                     $submenuhtml .= '</ul>';
                     if($subcat>0){
-                        echo '<a class="shinoks_wc_accordion_show" id="'.$category->term_id.'"></a>';
+                        if($instance['show_hide_icon']=='on') {
+                            echo '<a class="shinoks_wc_accordion_show" id="' . $category->term_id . '"></a>';
+                        }
                         echo $submenuhtml;
                     }
                 }
@@ -49,8 +59,9 @@ class woocomerceCategoryAccordion extends WP_Widget{
         }
         echo '</ul>';
         echo '</nav>';
-        echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>';
-        echo '<script>
+        if($instance['show_hide_icon']=='on') {
+            echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>';
+            echo '<script>
 			$(function(){
 				$(".shinoks_wc_accordion_show").click(function(){
     				$("#subcatgory-"+$(this).attr("id")).toggle();
@@ -62,16 +73,11 @@ class woocomerceCategoryAccordion extends WP_Widget{
 				});
 			})
            </script>';
-
+        }
     }
 
     public function form( $instance ) {
         isset($instance['title'])?$instance['title']:$instance['title'] = 'Default Title';
-        isset($instance['show_title'])?$instance['show_title']:'on';
-        isset($instance['show_empty'])?$instance['show_empty']:'off';
-        isset($instance['show_sub_cat'])?$instance['show_sub_cat']:'off';
-        isset($instance['show_hide_icon'])?$instance['show_empty']:'off';
-        var_dump($instance)
         ?>
         <p>
             <label for="title"><?php _e( 'Title:' ); ?></label>
@@ -93,7 +99,7 @@ class woocomerceCategoryAccordion extends WP_Widget{
     public function update( $new_instance, $old_instance ) {
         $instance = array();
         $instance['title'] = ( !empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-        $instance['show_title'] = ( !empty( $new_instance['show_title'] ) ) ? $new_instance['show_title']  : 'on';
+        $instance['show_title'] = ( !empty( $new_instance['show_title'] ) ) ? $new_instance['show_title']  : 'off';
         $instance['show_empty'] = ( !empty( $new_instance['show_empty'] ) ) ? $new_instance['show_empty']  : 'off';
         $instance['show_sub_cat'] = ( !empty( $new_instance['show_sub_cat'] ) ) ? $new_instance['show_sub_cat']  : 'off';
         $instance['show_hide_icon'] = isset( $new_instance['show_hide_icon'] ) ? $new_instance['show_hide_icon'] : 'off';
